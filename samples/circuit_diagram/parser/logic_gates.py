@@ -9,6 +9,8 @@ __all__ = ["parse_logic_gates"]
 nand = lambda a, b: not a & b
 nor = lambda a, b: not a | b
 xnor = lambda a, b: not a ^ b
+const_0 = lambda: False
+const_1 = lambda: True
 
 logic_gate_tokenizers = [
     TinyTokenizer("a", (and_, 2)),
@@ -18,6 +20,8 @@ logic_gate_tokenizers = [
     TinyTokenizer("x", (xor, 2)),
     TinyTokenizer("X", (xnor, 2)),
     TinyTokenizer("~", (not_, 1)),
+    TinyTokenizer("(", (const_0, 0)),
+    TinyTokenizer(")", (const_1, 0)),
 ]
 
 

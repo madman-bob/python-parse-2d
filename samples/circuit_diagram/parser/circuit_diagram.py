@@ -18,15 +18,22 @@ from samples.circuit_diagram.parser.wires import extract_wires
 
 __all__ = ["parse_circuit_diagram"]
 
+arg_count_input_directions = {
+    0: [],
+    1: [Directions.LEFT.value],
+    2: [Directions.UP_LEFT.value, Directions.DOWN_LEFT.value],
+}
+
 
 def node_inputs(node: Optional[Node]) -> List[Translation]:
     if isinstance(node, OutputNode):
-        return [Directions.LEFT.value]
-    if isinstance(node, OpNode):
-        if node.arg_count == 2:
-            return [Directions.UP_LEFT.value, Directions.DOWN_LEFT.value]
-        return [Directions.LEFT.value]
-    return []
+        arg_count = 1
+    elif isinstance(node, OpNode):
+        arg_count = node.arg_count
+    else:
+        arg_count = 0
+
+    return arg_count_input_directions[arg_count]
 
 
 def node_output(node: Optional[Node]) -> Optional[Translation]:
