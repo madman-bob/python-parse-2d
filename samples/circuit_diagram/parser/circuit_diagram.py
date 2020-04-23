@@ -5,6 +5,7 @@ from parse_2d import Diagram, Directions, Translation
 from samples.circuit_diagram.ast import (
     Circuit,
     Connection,
+    ConnectionLabel,
     InputNode,
     Node,
     NodeInput,
@@ -31,6 +32,15 @@ def node_inputs(node: Optional[Node]) -> List[Translation]:
 def node_output(node: Optional[Node]) -> Optional[Translation]:
     if isinstance(node, (InputNode, OpNode)):
         return Directions.RIGHT.value
+
+
+def parse_connection_label(label: str) -> ConnectionLabel:
+    components = label.split("+")
+
+    return ConnectionLabel(
+        sum((int(component) for component in components if component.isnumeric()), 0),
+        tuple(component for component in components if not component.isnumeric()),
+    )
 
 
 def parse_circuit_diagram(diagram: Diagram[str]):
@@ -64,6 +74,7 @@ def parse_circuit_diagram(diagram: Diagram[str]):
                     )
                     if socket.direction in inputs
                 ),
+                frozenset(parse_connection_label(label) for label in wire.labels),
             )
         )
 

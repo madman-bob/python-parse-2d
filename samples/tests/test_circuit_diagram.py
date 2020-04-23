@@ -5,6 +5,7 @@ from unittest import TestCase
 from samples.circuit_diagram import (
     Circuit,
     Connection,
+    ConnectionLabel,
     InputNode,
     NodeInput,
     OpNode,
@@ -107,3 +108,101 @@ class TestCircuitDiagram(TestCase):
             self.assertEqual(
                 circuit, parse_circuit_diagram(circuit_diagram),
             )
+
+    def test_circuit_diagram_wire_labels(self):
+        tests = [
+            (
+                dedent(
+                    """
+                        -3-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=3)}),
+            ),
+            (
+                dedent(
+                    """
+                        -12-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=12)}),
+            ),
+            (
+                dedent(
+                    """
+                        -n+1-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=1, variables=("n",))}),
+            ),
+            (
+                dedent(
+                    """
+                        -11+mn+qr+1-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=12, variables=("mn", "qr"))}),
+            ),
+            (
+                dedent(
+                    """
+                        -12-m+n-:
+                    """
+                ),
+                frozenset(
+                    {
+                        ConnectionLabel(constant=12),
+                        ConnectionLabel(variables=("m", "n")),
+                    }
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        -.
+                          1
+                           2
+                            .-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=12)}),
+            ),
+            (
+                dedent(
+                    """
+                            .-:
+                           2
+                          1
+                        -.
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=12)}),
+            ),
+            (
+                dedent(
+                    """
+                        -.
+                         1
+                         2
+                         .-:
+                    """
+                ),
+                frozenset({ConnectionLabel(constant=12)}),
+            ),
+        ]
+
+        for circuit_diagram, labels in tests:
+            with self.subTest(circuit=circuit_diagram):
+                self.assertEqual(
+                    Circuit(
+                        nodes={OutputNode(id=1), InputNode(id=0)},
+                        connections={
+                            Connection(
+                                inputs=frozenset({0}),
+                                outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                                labels=labels,
+                            )
+                        },
+                    ),
+                    parse_circuit_diagram(circuit_diagram),
+                )

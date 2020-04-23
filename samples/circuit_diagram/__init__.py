@@ -1,6 +1,7 @@
 from samples.circuit_diagram.ast import (
     Circuit,
     Connection,
+    ConnectionLabel,
     InputNode,
     Node,
     NodeInput,
@@ -15,6 +16,7 @@ __all__ = [
     "OutputNode",
     "OpNode",
     "NodeInput",
+    "ConnectionLabel",
     "Connection",
     "Circuit",
     "parse_circuit_diagram",

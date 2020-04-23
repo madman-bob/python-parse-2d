@@ -24,7 +24,12 @@ logic_gate_tokenizers = [
 def parse_logic_gates(
     diagram: Diagram[str], node_ids: Iterator[int]
 ) -> Dict[Index, OpNode]:
-    return {
+    logic_gates = {
         token.region.location: OpNode(next(node_ids), *token.value)
         for token in tokenize(diagram, logic_gate_tokenizers)
     }
+
+    for logic_gate_index in logic_gates:
+        diagram[logic_gate_index] = "logic_gate"
+
+    return logic_gates

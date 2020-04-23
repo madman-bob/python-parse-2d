@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from dataclasses import dataclass, field
-from typing import Callable, FrozenSet, Set
+from typing import Callable, FrozenSet, Set, Tuple
 
 __all__ = [
     "Node",
@@ -8,6 +8,7 @@ __all__ = [
     "OutputNode",
     "OpNode",
     "NodeInput",
+    "ConnectionLabel",
     "Connection",
     "Circuit",
 ]
@@ -43,9 +44,17 @@ class NodeInput:
 
 
 @dataclass(frozen=True)
+class ConnectionLabel:
+    constant: int = 0
+    variables: Tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class Connection:
     inputs: FrozenSet[NodeID]
     outputs: FrozenSet[NodeInput]
+
+    labels: FrozenSet[ConnectionLabel] = field(default_factory=frozenset)
 
 
 @dataclass
