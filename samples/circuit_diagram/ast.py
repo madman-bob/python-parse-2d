@@ -7,6 +7,7 @@ __all__ = [
     "InputNode",
     "OutputNode",
     "OpNode",
+    "FuncNode",
     "NodeInput",
     "ConnectionLabel",
     "Connection",
@@ -35,6 +36,13 @@ class OutputNode(Node):
 class OpNode(Node):
     func: Callable
     arg_count: int
+
+
+@dataclass(frozen=True)
+class FuncNode(Node):
+    func: Callable
+    arg_count: int
+    out_count: int
 
 
 @dataclass(frozen=True)

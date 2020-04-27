@@ -6,11 +6,18 @@ from samples.circuit_diagram import (
     Circuit,
     Connection,
     ConnectionLabel,
+    FuncNode,
     InputNode,
     NodeInput,
     OpNode,
     OutputNode,
     parse_circuit_diagram,
+)
+from samples.circuit_diagram.parser.functions import (
+    join_wires,
+    split_wires,
+    t,
+    trim_wires,
 )
 
 
@@ -205,4 +212,126 @@ class TestCircuitDiagram(TestCase):
                         },
                     ),
                     parse_circuit_diagram(circuit_diagram),
+                )
+
+    def test_circuit_diagram_functions(self):
+        tests = [
+            (
+                dedent(
+                    """
+                        -.
+                          >-:
+                        -.
+                    """
+                ),
+                Circuit(
+                    nodes={
+                        InputNode(id=0),
+                        InputNode(id=1),
+                        OutputNode(id=2),
+                        FuncNode(id=3, func=join_wires, arg_count=2, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({0}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({1}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=1)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({3}),
+                            outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                           .:
+                        --<
+                           .:
+                    """
+                ),
+                Circuit(
+                    nodes={
+                        InputNode(id=0),
+                        OutputNode(id=1),
+                        OutputNode(id=2),
+                        FuncNode(id=3, func=split_wires, arg_count=1, out_count=2),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({0}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({3}),
+                            outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({3}),
+                            outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        -.
+                          %-:
+                        -.
+                    """
+                ),
+                Circuit(
+                    nodes={
+                        InputNode(id=0),
+                        InputNode(id=1),
+                        OutputNode(id=2),
+                        FuncNode(id=3, func=trim_wires, arg_count=2, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({0}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({1}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=1)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({3}),
+                            outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        t-:
+                    """
+                ),
+                Circuit(
+                    nodes={
+                        OutputNode(id=0),
+                        FuncNode(id=1, func=t, arg_count=0, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({1}),
+                            outputs=frozenset({NodeInput(id=0, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+        ]
+
+        for circuit_diagram, circuit in tests:
+            with self.subTest(circuit=circuit_diagram):
+                self.assertEqual(
+                    circuit, parse_circuit_diagram(circuit_diagram),
                 )
