@@ -1,12 +1,13 @@
 from abc import ABCMeta
 from dataclasses import dataclass, field
-from typing import Callable, FrozenSet, Set, Tuple
+from typing import Callable, FrozenSet, Mapping, Set, Tuple, Union
 
 __all__ = [
     "Node",
     "InputNode",
     "OutputNode",
     "OpNode",
+    "Function",
     "FuncNode",
     "NodeInput",
     "ConnectionLabel",
@@ -39,8 +40,14 @@ class OpNode(Node):
 
 
 @dataclass(frozen=True)
+class Function:
+    name: str
+    contents: "Circuit"
+
+
+@dataclass(frozen=True)
 class FuncNode(Node):
-    func: Callable
+    func: Union[str, Callable]
     arg_count: int
     out_count: int
 
@@ -67,5 +74,6 @@ class Connection:
 
 @dataclass
 class Circuit:
+    functions: Mapping[str, Function] = field(default_factory=dict)
     nodes: Set[Node] = field(default_factory=set)
     connections: Set[Connection] = field(default_factory=set)

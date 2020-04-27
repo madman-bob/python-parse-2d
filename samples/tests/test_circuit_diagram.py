@@ -7,6 +7,7 @@ from samples.circuit_diagram import (
     Connection,
     ConnectionLabel,
     FuncNode,
+    Function,
     InputNode,
     NodeInput,
     OpNode,
@@ -324,6 +325,223 @@ class TestCircuitDiagram(TestCase):
                         Connection(
                             inputs=frozenset({1}),
                             outputs=frozenset({NodeInput(id=0, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+        ]
+
+        for circuit_diagram, circuit in tests:
+            with self.subTest(circuit=circuit_diagram):
+                self.assertEqual(
+                    circuit, parse_circuit_diagram(circuit_diagram),
+                )
+
+    def test_circuit_diagram_user_functions(self):
+        tests = [
+            (
+                dedent(
+                    """
+                        {*
+                        --:
+                        }
+
+                        -*-:
+                    """
+                ),
+                Circuit(
+                    functions={
+                        "*": Function(
+                            name="*",
+                            contents=Circuit(
+                                nodes={InputNode(id=0), OutputNode(id=1)},
+                                connections={
+                                    Connection(
+                                        inputs=frozenset({0}),
+                                        outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                    nodes={
+                        InputNode(id=0),
+                        OutputNode(id=1),
+                        FuncNode(id=2, func="*", arg_count=1, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({2}),
+                            outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                        )
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        {n00p
+                        --:
+                        }
+
+                        -n00p-:
+                    """
+                ),
+                Circuit(
+                    functions={
+                        "n00p": Function(
+                            name="n00p",
+                            contents=Circuit(
+                                nodes={InputNode(id=0), OutputNode(id=1)},
+                                connections={
+                                    Connection(
+                                        inputs=frozenset({0}),
+                                        outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                    nodes={
+                        InputNode(id=0),
+                        OutputNode(id=1),
+                        FuncNode(id=2, func="n00p", arg_count=1, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({2}),
+                            outputs=frozenset({NodeInput(id=1, arg_pos=0)}),
+                        )
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        {*
+                        -.
+                          >-:
+                        -.
+                        }
+
+                        -.
+                          *-:
+                        -.
+                    """
+                ),
+                Circuit(
+                    functions={
+                        "*": Function(
+                            name="*",
+                            contents=Circuit(
+                                nodes={
+                                    InputNode(id=0),
+                                    InputNode(id=1),
+                                    OutputNode(id=2),
+                                    FuncNode(
+                                        id=3, func=join_wires, arg_count=2, out_count=1
+                                    ),
+                                },
+                                connections={
+                                    Connection(
+                                        inputs=frozenset({0}),
+                                        outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                                    ),
+                                    Connection(
+                                        inputs=frozenset({1}),
+                                        outputs=frozenset({NodeInput(id=3, arg_pos=1)}),
+                                    ),
+                                    Connection(
+                                        inputs=frozenset({3}),
+                                        outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                                    ),
+                                },
+                            ),
+                        )
+                    },
+                    nodes={
+                        InputNode(id=0),
+                        InputNode(id=1),
+                        OutputNode(id=2),
+                        FuncNode(id=3, func="*", arg_count=2, out_count=1),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({0}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({1}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=1)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({3}),
+                            outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                        ),
+                    },
+                ),
+            ),
+            (
+                dedent(
+                    """
+                        {*
+                        -. .:
+                          =
+                        -. .:
+                        }
+
+                        -. .:
+                          *
+                        -. .:
+                    """
+                ),
+                Circuit(
+                    functions={
+                        "*": Function(
+                            name="*",
+                            contents=Circuit(
+                                nodes={
+                                    InputNode(id=0),
+                                    InputNode(id=1),
+                                    OutputNode(id=2),
+                                    OutputNode(id=3),
+                                },
+                                connections={
+                                    Connection(
+                                        inputs=frozenset({0}),
+                                        outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
+                                    ),
+                                    Connection(
+                                        inputs=frozenset({1}),
+                                        outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                                    ),
+                                },
+                            ),
+                        )
+                    },
+                    nodes={
+                        InputNode(id=0),
+                        InputNode(id=1),
+                        OutputNode(id=2),
+                        OutputNode(id=3),
+                        FuncNode(id=4, func="*", arg_count=2, out_count=2),
+                    },
+                    connections={
+                        Connection(
+                            inputs=frozenset({0}),
+                            outputs=frozenset({NodeInput(id=4, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({1}),
+                            outputs=frozenset({NodeInput(id=4, arg_pos=1)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({4}),
+                            outputs=frozenset({NodeInput(id=2, arg_pos=0)}),
+                        ),
+                        Connection(
+                            inputs=frozenset({4}),
+                            outputs=frozenset({NodeInput(id=3, arg_pos=0)}),
                         ),
                     },
                 ),

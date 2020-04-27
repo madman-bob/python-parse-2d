@@ -13,7 +13,10 @@ from samples.circuit_diagram.ast import (
     OpNode,
     OutputNode,
 )
-from samples.circuit_diagram.parser.functions import parse_functions
+from samples.circuit_diagram.parser.functions import (
+    parse_function_defs,
+    parse_functions,
+)
 from samples.circuit_diagram.parser.io import parse_input_nodes, parse_output_nodes
 from samples.circuit_diagram.parser.logic_gates import parse_logic_gates
 from samples.circuit_diagram.parser.wires import extract_wires
@@ -67,10 +70,15 @@ def parse_connection_label(label: str) -> ConnectionLabel:
 def parse_circuit_diagram(diagram: Diagram[str]):
     node_ids = count()
 
+    functions = {
+        function.name: function
+        for function in parse_function_defs(diagram, parse_circuit_diagram)
+    }
+
     input_nodes = parse_input_nodes(diagram, node_ids)
     output_nodes = parse_output_nodes(diagram, node_ids)
     logic_gate_nodes = parse_logic_gates(diagram, node_ids)
-    function_nodes = parse_functions(diagram, node_ids)
+    function_nodes = parse_functions(diagram, node_ids, functions.values())
 
     wires = extract_wires(diagram)
 
@@ -100,4 +108,4 @@ def parse_circuit_diagram(diagram: Diagram[str]):
             )
         )
 
-    return Circuit(set(nodes.values()), connections)
+    return Circuit(functions, set(nodes.values()), connections)

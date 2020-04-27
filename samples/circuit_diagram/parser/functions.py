@@ -1,10 +1,23 @@
 from datetime import datetime
-from typing import Dict, Iterator, List
+from typing import Callable, Dict, Iterable, Iterator, List
 
 from parse_2d import Diagram, Index, TemplateTokenizer, tokenize
-from samples.circuit_diagram.ast import FuncNode
+from samples.circuit_diagram.ast import (
+    Circuit,
+    FuncNode,
+    Function,
+    InputNode,
+    OutputNode,
+)
 
-__all__ = ["split_wires", "join_wires", "trim_wires", "t", "parse_functions"]
+__all__ = [
+    "split_wires",
+    "join_wires",
+    "trim_wires",
+    "t",
+    "parse_function_defs",
+    "parse_functions",
+]
 
 
 def int_to_signal(n: int, wire_count: int) -> List[bool]:
@@ -26,12 +39,52 @@ function_tokenizers = [
 ]
 
 
+def user_function_tokenizer(function):
+    arg_count = sum(
+        1 for node in function.contents.nodes if isinstance(node, InputNode)
+    )
+    out_count = sum(
+        1 for node in function.contents.nodes if isinstance(node, OutputNode)
+    )
+
+    return TemplateTokenizer(
+        Diagram.from_string(function.name), (function.name, arg_count, out_count)
+    )
+
+
+def parse_function_defs(
+    diagram: Diagram[str], parse_function_contents: Callable[[Diagram[str]], Circuit]
+) -> Iterator[Function]:
+    y_start = None
+
+    for y in range(len(diagram.contents)):
+        if diagram[(0, y)] == "{":
+            y_start = y
+        elif diagram[(0, y)] == "}":
+            y_end = y
+
+            yield Function(
+                "".join(diagram.contents[y_start][1:]),
+                parse_function_contents(
+                    Diagram(diagram.contents[y_start + 1 : y_end], diagram.whitespace)
+                ),
+            )
+
+            diagram.contents[y_start : y_end + 1] = [
+                [] for _ in range(y_end - y_start + 1)
+            ]
+
+
 def parse_functions(
-    diagram: Diagram[str], node_ids: Iterator[int]
+    diagram: Diagram[str], node_ids: Iterator[int], user_functions: Iterable[Function]
 ) -> Dict[Index, FuncNode]:
+    user_function_tokenizers = [
+        user_function_tokenizer(function) for function in user_functions
+    ]
+
     functions_by_region = {
         token.region: FuncNode(next(node_ids), *token.value)
-        for token in tokenize(diagram, function_tokenizers)
+        for token in tokenize(diagram, function_tokenizers + user_function_tokenizers)
     }
 
     functions_by_index = {
