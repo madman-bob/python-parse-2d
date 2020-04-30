@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from parse_2d.diagram import Diagram, char_matrix
+from parse_2d.diagram import Diagram
 
 
 class TestDiagram(TestCase):
@@ -12,7 +12,9 @@ class TestDiagram(TestCase):
         self.assertEqual("b", self.sample_diagram[(1, 0)])
 
     def test_diagram_get_slice(self):
-        self.assertEqual(char_matrix("bc\n f"), self.sample_diagram[(1, 0):(3, 2)])
+        self.assertEqual(
+            Diagram.from_string("bc\n f"), self.sample_diagram[(1, 0):(3, 2)]
+        )
 
     def test_diagram_set_index(self):
         diagram = self.sample_diagram
@@ -22,9 +24,9 @@ class TestDiagram(TestCase):
 
     def test_diagram_set_slice(self):
         diagram = self.sample_diagram
-        diagram[(2, 0):(3, 3)] = char_matrix("k\nl\nm")
+        diagram[(2, 0):(3, 3)] = Diagram.from_string("k\nl\nm")
 
-        self.assertEqual(char_matrix("bk\n l"), diagram[(1, 0):(3, 2)])
+        self.assertEqual(Diagram.from_string("bk\n l"), diagram[(1, 0):(3, 2)])
 
     def test_diagram_iter(self):
         self.assertEqual(

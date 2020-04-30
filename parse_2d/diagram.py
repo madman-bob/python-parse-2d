@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Iterable, List, MutableMapping, Tuple, TypeVar, Union
 
-__all__ = ["char_matrix", "Index", "Diagram"]
+__all__ = ["Index", "Diagram"]
 
 V = TypeVar("V")  # Value type
 D = TypeVar("D")  # Default value type
@@ -23,7 +23,10 @@ class Diagram(MutableMapping[Index, V]):
             min_x, min_y = item.start
             max_x, max_y = item.stop
 
-            return [line[min_x:max_x] for line in self.contents[min_y:max_y]]
+            return replace(
+                self,
+                contents=[line[min_x:max_x] for line in self.contents[min_y:max_y]],
+            )
 
         x, y = item
 
@@ -40,7 +43,9 @@ class Diagram(MutableMapping[Index, V]):
             if max_y - min_y != len(value):
                 raise IndexError
 
-            for line, replacement_line in zip(self.contents[min_y:max_y], value):
+            for line, replacement_line in zip(
+                self.contents[min_y:max_y], value.contents
+            ):
                 if max_x - min_x != len(replacement_line):
                     raise IndexError
 
