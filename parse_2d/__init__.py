@@ -33,3 +33,5 @@ __all__ = [
     "WireTokenizer",
     "BoxTokenizer",
 ]
+
+__version__ = "1.0.0"
