@@ -34,6 +34,8 @@ Each `Token` has a region and a value. The region is what area it covers in the 
 
 Alternatively, you can extract the path as a single token, using the `WireTokenizer`, or as a directed path, by subclassing `WireTokenizer`.
 
+A more complete [sample](https://github.com/madman-bob/python-parse-2d/tree/master/samples/circuit_diagram) is also provided, to demonstrate the use of these tools, by parsing the [Circuit Diagram](https://esolangs.org/wiki/Circuit_Diagram) language.
+
 ## Reference
 
 ### `Diagram`
