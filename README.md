@@ -125,3 +125,11 @@ Tokenizer for tokens represented by a box of edge symbols.
 ### `tokenize(diagram, tokenizers)`
 
 Yields the non-overlapping tokens found in the `diagram` by the list of `tokenizers`.
+
+## Installation
+
+Install and update using [pip](https://pip.pypa.io/en/stable/):
+
+```bash
+pip install parse_2d
+```
